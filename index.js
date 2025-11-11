@@ -24,16 +24,35 @@ const client = new MongoClient(uri, {
 });
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    // Send a ping to confirm a successful connection
+    const db = client.db("clean_community_db");
+    const issuesCollection = db.collection("issues");
+    const usersCollection = db.collection("users");
+    const contributionCollection = db.collection("users");
+
+
+    app.get('/latest-issues', async (req, res) => {
+      const cursor = issuesCollection.find().sort({ created_at: -1 }).limit(6);
+      const result = await cursor.toArray();
+      res.send(result);
+  })
+
+    app.get("/issues", async(req, res) =>{
+        const result = await issuesCollection.find().toArray();
+        res.send(result)
+    })
+
+
+
+
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
