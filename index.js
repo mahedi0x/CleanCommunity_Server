@@ -47,8 +47,6 @@ async function run() {
   })
 
 
-
-
     app.get('/latest-issues', async (req, res) => {
       const cursor = issuesCollection.find().sort({ created_at: -1 }).limit(6);
       const result = await cursor.toArray();
@@ -81,6 +79,60 @@ async function run() {
       });
     });
 
+
+
+    //=================== my-issues =============================
+    app.get("/my-issues", async(req, res) => {
+      const email = req.query.email
+      const result = await issuesCollection.find({created_by: email}).toArray()
+      res.send(result)
+    })
+
+    app.delete("/issues/:id", async(req, res) =>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await issuesCollection.deleteOne(query)
+      res.send(result)
+    })
+
+
+    app.patch("/issues/:id", async(req, res) =>{
+      const id = req.params.id;
+      const updatedIssue = req.body;
+      console.log(id, updatedIssue);
+      const query = { _id: new ObjectId(id) }
+            const update = {
+                $set: {
+                  title: updatedIssue.title,
+                  category: updatedIssue.category,
+                  amount: updatedIssue.amount,
+                  status: updatedIssue.status
+                }
+            }
+            const result = await issuesCollection.updateOne(query, update)
+            res.send(result)
+    })
+
+
+
+    // app.put("/issues/:id",  async (req, res) => {
+    //   const { id } = req.params;
+    //   const data = req.body;
+    //   // console.log(id)
+    //   // console.log(data)
+    //   const objectId = new ObjectId(id);
+    //   const filter = { _id: objectId };
+    //   const update = {
+    //     $set: data,
+    //   };
+
+    //   const result = await issuesCollection.updateOne(filter, update);
+
+    //   res.send({
+    //     success: true,
+    //     result,
+    //   });
+    // });
 
 
 
