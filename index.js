@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -28,7 +28,25 @@ async function run() {
     const db = client.db("clean_community_db");
     const issuesCollection = db.collection("issues");
     const usersCollection = db.collection("users");
-    const contributionCollection = db.collection("users");
+    const contributionCollection = db.collection("contribution");
+
+
+    app.post('/users', async (req, res) => {
+      const newUser = req.body;
+      const email = req.body.email;
+      const query = { email: email }
+      const existingUser = await usersCollection.findOne(query);
+
+      if (existingUser) {
+          res.send({ message: 'user already exits. do not need to insert again' })
+      }
+      else {
+          const result = await usersCollection.insertOne(newUser);
+          res.send(result);
+      }
+  })
+
+
 
 
     app.get('/latest-issues', async (req, res) => {
@@ -40,6 +58,13 @@ async function run() {
     app.get("/issues", async(req, res) =>{
         const result = await issuesCollection.find().toArray();
         res.send(result)
+    })
+
+    app.get("/issues-details/:id", async(req, res) =>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await issuesCollection.findOne(query);
+      res.send(result);
     })
 
 
