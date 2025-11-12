@@ -55,17 +55,31 @@ async function run() {
       res.send(result);
   })
 
+  //=================== Get All Issues =============================
     app.get("/issues", async(req, res) =>{
         const result = await issuesCollection.find().toArray();
         res.send(result)
     })
 
+     //=================== Get Issues Details=============================
     app.get("/issues-details/:id", async(req, res) =>{
       const id = req.params.id;
       const query = {_id: new ObjectId(id)};
       const result = await issuesCollection.findOne(query);
       res.send(result);
     })
+
+
+    //=================== Post Issues =============================
+    app.post("/issues",   async (req, res) => {
+      const data = req.body;
+      // console.log(data)
+      const result = await issuesCollection.insertOne(data);
+      res.send({
+        success: true,
+        result,
+      });
+    });
 
 
 
