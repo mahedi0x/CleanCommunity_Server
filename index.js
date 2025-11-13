@@ -46,6 +46,14 @@ async function run() {
       }
   })
 
+  
+  app.get("/users", async(req, res) =>{
+    const result = await usersCollection.find().toArray();
+    res.send(result);
+  })
+
+
+
 
     app.get('/latest-issues', async (req, res) => {
       const cursor = issuesCollection.find().sort({ created_at: -1 }).limit(6);
@@ -54,10 +62,10 @@ async function run() {
   })
 
   //=================== Get All Issues =============================
-    app.get("/issues", async(req, res) =>{
-        const result = await issuesCollection.find().toArray();
-        res.send(result)
-    })
+    // app.get("/issues", async(req, res) =>{
+    //     const result = await issuesCollection.find().toArray();
+    //     res.send(result)
+    // })
 
      //=================== Get Issues Details=============================
     app.get("/issues-details/:id", async(req, res) =>{
@@ -78,6 +86,9 @@ async function run() {
         result,
       });
     });
+
+
+    
 
 
 
@@ -114,25 +125,57 @@ async function run() {
     })
 
 
+    app.get("/issues", async (req, res) => {
+      const { category, status } = req.query;
+      const query = {};
 
-    // app.put("/issues/:id",  async (req, res) => {
-    //   const { id } = req.params;
-    //   const data = req.body;
-    //   // console.log(id)
-    //   // console.log(data)
-    //   const objectId = new ObjectId(id);
-    //   const filter = { _id: objectId };
-    //   const update = {
-    //     $set: data,
-    //   };
+      if (category && category !== "all") {
+        query.category = category;
+      }
+      if (status && status !== "all") {
+        query.status = status;
+      }
 
-    //   const result = await issuesCollection.updateOne(filter, update);
+      const cursor = issuesCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
-    //   res.send({
-    //     success: true,
-    //     result,
-    //   });
-    // });
+
+
+
+    app.post("/contributions", async(req, res) =>{
+      const data = req.body;
+      const result = await contributionCollection.insertOne(data);
+      res.send({
+        success: true,
+        result,
+      });
+    })
+
+
+    app.get("/contributions", async(req, res) =>{
+      const result = await contributionCollection.find().toArray();
+      res.send(result);
+    })
+    
+    app.get("/contributions/:id", async(req, res) =>{
+      const id = req.params.id;
+      const query = {issueId: id};
+      const result = await contributionCollection.find(query).toArray();
+      res.send(result);
+    })
+
+    app.get("/my-contribution", async(req, res) => {
+      const email = req.query.email;
+      const query = {};
+      if(email){
+        query.email = email;
+      }
+      const result = await contributionCollection.find(query).toArray();
+      res.send(result)
+    })
+
 
 
 
