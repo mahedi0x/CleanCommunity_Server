@@ -125,6 +125,7 @@ async function run() {
       }
 
       const cursor = issuesCollection.find(query);
+      // const cursor = issuesCollection.find(query).sort({ created_at: -1 }).limit(6);
       const result = await cursor.toArray();
       res.send(result);
     });
